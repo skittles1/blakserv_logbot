@@ -57,10 +57,9 @@ namespace blakserv_logbot
                   continue;
                }
 
-               if (logFile.HasUpdated)
+               if (logFile.HasUpdated())
                {
                   string[] changes = logFile.GetChanges();
-                  logFile.UpdateLength();
                   foreach (string s in changes)
                      if (s != "\0")
                         ProcessLineChange(logFile, s);

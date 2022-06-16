@@ -11,7 +11,7 @@ namespace blakserv_logbot
       public DateTime Timestamp;
       public string Message;
       public string ServerNumber;
-      public static string[] DateFormats = { "MMM  d yyyy HH:mm:ss", "MMM dd yyyy HH:mm:ss" };
+      private readonly static string[] DateFormats = { "MMM  d yyyy HH:mm:ss", "MMM dd yyyy HH:mm:ss" };
 
       public LogEntry(LogType LogType, string ServerNumber, string Message)
       {

@@ -16,7 +16,6 @@ namespace blakserv_logbot
       public FileStream Stream { get; protected set; }
       public LogType LogType;
       public bool IsOpen => Stream != null;
-      public bool HasUpdated => Stream.Length > OldLength;
       public long NumNewBytes => Stream.Length - OldLength;
 
       public LogFile(string ServerNumber, string Folder, string FileName)
@@ -63,8 +62,6 @@ namespace blakserv_logbot
          Stream = null;
       }
 
-      public void UpdateLength() => OldLength = Stream.Length;
-
       // Get a string array of changes in the file since the last check.
       // Each entry in the array is a separate line of the file.
       public string[] GetChanges()
@@ -75,12 +72,15 @@ namespace blakserv_logbot
             Console.WriteLine($"Stream for {FullPath} is null when trying to get changes!");
             return Array.Empty<string>();
          }
+         // Log file could get new changes right after we read this, so
+         // set OldLength here and ignore newer changes to the file.
+         long bytesChanged = NumNewBytes;
+         OldLength += bytesChanged;
 
          // Seek to the last updated position and read new bytes into byte array.
-         Stream.Seek(-NumNewBytes, SeekOrigin.End);
-         byte[] byteArray = new byte[NumNewBytes + 1];
-         int bytesRead = Stream.Read(byteArray, 0, (int)NumNewBytes);
-         if (bytesRead <= 0)
+         Stream.Seek(OldLength, SeekOrigin.Begin);
+         byte[] byteArray = new byte[bytesChanged];
+         if (Stream.Read(byteArray, 0, (int)bytesChanged) <= 0)
             return Array.Empty<string>();
 
          // Split bytes on newline.
@@ -88,17 +88,21 @@ namespace blakserv_logbot
              .Split("\n", StringSplitOptions.RemoveEmptyEntries);
       }
 
-      // Whether the file actually exists on disk. FileInfo.Refresh()
-      // must be called first so the FileInfo data is current.
-      public bool Exists()
+      public bool HasUpdated()
       {
-         File.Refresh();
-         
          // Catch the case where we have a negative length file update
          // which can happen if the file was deleted & recreated, or
          // if something was removed from the file.
          if (NumNewBytes < 0)
-            UpdateLength();
+            OldLength = Stream.Length;
+         return Stream.Length > OldLength;
+      }
+
+      // Whether the file actually exists on disk.
+      public bool Exists()
+      {
+         // Refresh() must be called first so the FileInfo data is current.
+         File.Refresh();
 
          return File.Exists;
       }

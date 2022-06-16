@@ -20,8 +20,8 @@ namespace blakserv_logbot
       private readonly DiscordSocketClient discordSocketClient;
       private readonly CommandService commandService;
       private readonly IServiceProvider iServiceProvider;
-      private ulong channelID;
-      private string botPrefix = "logbot";
+      private readonly ulong channelID;
+      private readonly string botPrefix = "logbot";
 
       public DiscordClient()
       {
