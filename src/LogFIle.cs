@@ -72,13 +72,15 @@ namespace blakserv_logbot
             Console.WriteLine($"Stream for {FullPath} is null when trying to get changes!");
             return Array.Empty<string>();
          }
+
+         // Seek to the last updated position and read new bytes into byte array.
+         Stream.Seek(OldLength, SeekOrigin.Begin);
+
          // Log file could get new changes right after we read this, so
          // set OldLength here and ignore newer changes to the file.
          long bytesChanged = NumNewBytes;
          OldLength += bytesChanged;
 
-         // Seek to the last updated position and read new bytes into byte array.
-         Stream.Seek(OldLength, SeekOrigin.Begin);
          byte[] byteArray = new byte[bytesChanged];
          if (Stream.Read(byteArray, 0, (int)bytesChanged) <= 0)
             return Array.Empty<string>();
