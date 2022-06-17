@@ -6,6 +6,7 @@ namespace blakserv_logbot.tests
       private string noDateTime = "User::UserGo(#bCancel=INT 0) [user.bof (8881)]";
       private string singleDateTime = "Jun  4 2022 01:24:44|LoadBof loaded 1799 of 1799 found .bof files";
       private string doubleDateTime = "Jun 14 2022 19:21:00|LoadBof loaded 1799 of 1799 found .bof files";
+      private string doubleDateTimeInvalid = "Jun 34 2022 19:21:00|LoadBof loaded 1799 of 1799 found .bof files";
 
       private string includesDT = "Jun 14 2022 19:21:00|LoadBof loaded 1799 of 1799 found .bof files";
       private string wsIncludesDT = "Jun 14 2022 19:21:00|   LoadBof loaded 1799 of 1799 found .bof files   ";
@@ -13,11 +14,12 @@ namespace blakserv_logbot.tests
 
 
       /// <summary>
-      /// Check if the LogEntry timestamp is correct for the 3 kinds
+      /// Check if the LogEntry timestamp is correct for the 4 kinds
       /// of timestamp encountered in a log message.
       /// 1. No timestamp.
       /// 2. Timestamp with 2 spaces between short month & single digit day.
       /// 3. Timestamp with 1 space between short month & double digit day.
+      /// 4. Malformed timestamp, which is given a timestamp of now.
       /// </summary>
       [TestMethod]
       public void TestDateString()
@@ -33,6 +35,10 @@ namespace blakserv_logbot.tests
          // Jun 14 2022 19:21:00
          l = new LogEntry(LogType.Error, "105", doubleDateTime);
          Assert.IsTrue((new DateTime(2022, 6, 14, 19, 21, 00) - l.Timestamp).TotalSeconds < 1);
+
+         // Jun 34 2022 19:21:00, intentionally malformed date.
+         l = new LogEntry(LogType.Error, "105", doubleDateTimeInvalid);
+         Assert.IsTrue((l.Timestamp - DateTime.Now).TotalSeconds <= 2);
       }
 
       /// <summary>
