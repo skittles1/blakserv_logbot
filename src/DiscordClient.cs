@@ -28,7 +28,7 @@ namespace blakserv_logbot
          var config = new DiscordSocketConfig
          {
             GatewayIntents = GatewayIntents.DirectMessages | GatewayIntents.GuildMembers
-                 | GatewayIntents.GuildMessages | GatewayIntents.Guilds,
+                 | GatewayIntents.GuildMessages | GatewayIntents.Guilds | GatewayIntents.MessageContent,
             AlwaysDownloadUsers = true
          };
          discordSocketClient = new DiscordSocketClient(config);
